@@ -1,6 +1,6 @@
-# Renaming numbered files
+# Batch Renaming Numbered Files
 
-Renaming numbered files, such as offsetting numbers and padding them with zeros, is one of the things that comes up often when you manage files on your computer. Easy enough to do in Python/C++, etc. but usually we want to do these tasks directly from terminal without creating a file let alone compiling. Though the syntax can get fairly tricky, bash can accomplish certain patterns of renaming tasks if they are not too complicated. Here is the quick cheat sheet that I save for myself and, as you can see, decided to upload publicly.
+Whether you are a programmer or not, the need for [batch renaming](https://en.wikipedia.org/wiki/Batch_renaming) follows you around wherever you go, as long as you manage files on your computer. In particular, renaming numbered files, such as offsetting numbers and padding them with zeros, is very common. Easy enough to do in Python/C++, etc. but usually we want to do these tasks directly from terminal without creating a file let alone compiling some code. Though the syntax can get a bit tricky, bash can accomplish certain patterns of renaming tasks if they are not too complicated. Here is the quick cheat sheet that I save for myself and, as you can see, decided to upload publicly.
 
 
 
@@ -41,17 +41,22 @@ To break it down and explain the ingredients of the scripts above,
 ```
 $()
 ```
-evaluates/executes the command written in the parenthesis
+evaluates/executes the command written in the parenthesis.
 
+Next, the printf command in bash formats the string and prints the string to stdout. In short, the syntax is
+
+<code>printf *(formatting string)* *(things you want to format, e.g. numbers)*</code>
+
+So by writing it like
 ```
 $(printf %03d $i)
 ```
-The printf command in bash formats the string and prints the string
+we can store the formatted string (in this case a zero-padded number) to a variable. Note that although ``printf`` is well known as a C function, what we are using here is a linux command that resides in ``/usr/bin/``, just like ``ls`` or ``ping``. 
 
+Finally, the expr command performs simple arithmetic operations and prints the result
 ```
 $(expr $1 - 8)
 ```
-The expr command performs simple arithmetic operations and prints the result
 
 
 
