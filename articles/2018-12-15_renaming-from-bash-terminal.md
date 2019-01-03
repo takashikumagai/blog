@@ -10,29 +10,32 @@ Renaming numbered files, such as offsetting numbers and padding them with zeros,
 $ for((i=9; i<=11; i++)); do mv from$i.jpg to$(printf %03d $i).jpg; done
 ```
 
-#### Input:
-from9.jpg, from10.jpg, from11.jpg
+Tip: replace ``mv`` with ``echo`` to see the preview first, then run with ``mv``
 
-#### Output:
-to009.jpg to010.jpg to011.jpg
+<code>$ for((i=9; i<=11; i++)); do **echo** from$i.jpg to$(printf %03d $i).jpg; done</code>
 
+#### Example
 
+- Input file names: from9.jpg, from10.jpg, from11.jpg
+  - \> Output file names will be: to009.jpg to010.jpg to011.jpg
+
+- Preview using ``echo``
+```
+from9.jpg to009.jpg
+from10.jpg to010.jpg
+from11.jpg to011.jpg
+```
 
 ### Scenario 2: zero padding + shifting numbers
 ```
 $ for((i=9; i<=11; i++)); do mv from$i.jpg to$(printf %03d $(expr $i - 8)).jpg; done
 ```
 
-#### Input:
-from9.jpg, from10.jpg, from11.jpg
+#### Example
+- Input file names: from9.jpg, from10.jpg, from11.jpg
+  - \> Output file names will be: to001.jpg to002.jpg to003.jpg
 
-#### Output:
-to001.jpg to002.jpg to003.jpg
-
-
-
-
-### The Elements
+### How It Works
 
 To break it down and explain the ingredients of the scripts above,
 ```
