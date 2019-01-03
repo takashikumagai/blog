@@ -7,7 +7,7 @@ Renaming numbered files, such as offsetting numbers and padding them with zeros,
 
 ### Scenario 1: Simple zero padding
 ```
-$ if((i=9; i<=11; i++)); do mv from$i.jpg to$(printf %03d $1).jpg; done
+$ for((i=9; i<=11; i++)); do mv from$i.jpg to$(printf %03d $i).jpg; done
 ```
 
 #### Input:
@@ -20,7 +20,7 @@ to009.jpg to010.jpg to011.jpg
 
 ### Scenario 2: zero padding + shifting numbers
 ```
-$ if((i=9; i<=11; i++)); do mv from$i.jpg to$(printf %03d $(expr $1 - 8)).jpg; done
+$ for((i=9; i<=11; i++)); do mv from$i.jpg to$(printf %03d $(expr $i - 8)).jpg; done
 ```
 
 #### Input:
