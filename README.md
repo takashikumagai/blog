@@ -5,3 +5,6 @@
 
 ### [Caturday Night Bash Scripting: Ep 1 - Renaming from terminal](articles/2018-12-15_renaming-from-bash-terminal.md)
 <span style="color: #f2cf4a; font-family: Babas; font-size: 1em;">*2018-12-15*</span>
+
+### [The SSH Command](articles/2019-06-18_ssh.md)
+<span style="color: #f2cf4a; font-family: Babas; font-size: 1em;">*2019-06-18*</span>
