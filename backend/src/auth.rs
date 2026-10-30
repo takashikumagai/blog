@@ -250,7 +250,7 @@ pub async fn google_callback(
 }
 
 pub fn hash_secret(secret: &str) -> String {
-    format!("{:x}", Sha256::digest(secret.as_bytes()))
+    hex::encode(Sha256::digest(secret.as_bytes()))
 }
 
 fn auth_configuration() -> Option<(String, String, String)> {

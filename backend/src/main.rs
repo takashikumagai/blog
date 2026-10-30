@@ -1,7 +1,7 @@
 use std::env;
 use std::net::SocketAddr;
 
-use nyanko_blog::{app_with_db, db};
+use blog::{app_with_db, db};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 #[tokio::main]
@@ -9,7 +9,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing_subscriber::registry()
         .with(
             tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| "nyanko_blog=debug,tower_http=debug,axum=debug".into()),
+                .unwrap_or_else(|_| "nyanko_blog=debug,axum=debug".into()),
         )
         .with(tracing_subscriber::fmt::layer())
         .init();
