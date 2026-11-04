@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "**" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    # Spin up a companion Postgres container for sqlx::test integration/unit tests
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: blog
+          POSTGRES_PASSWORD: dev
+          POSTGRES_DB: nyanko_blog
+        ports:
+          - 5432:5432
+        # This health check ensures the runner waits until Postgres is fully ready to accept connections
+        # before running tests
+        options: >-
+          --health-cmd "pg_isready -U blog -d nyanko_blog"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Rust stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Run cargo test
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql://blog:dev@localhost:5432/nyanko_blog
+        format: --all-targets
+        run: cargo test
