@@ -20,6 +20,7 @@ services:
     restart: unless-stopped
     environment:
       DATABASE_URL: postgresql://blog:${POSTGRES_PASSWORD}@postgres:5432/nyanko_blog
+      BLOG_SYNC_TOKEN: ${BLOG_SYNC_TOKEN:?set in .env}
       BNS_PORT: 3210
       RUST_LOG: nyanko_blog=info
       GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}

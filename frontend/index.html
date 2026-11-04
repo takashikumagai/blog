@@ -2,9 +2,15 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>nyanko-blog</title>
+    <meta name="theme-color" content="#fcfaf6" />
+    <meta name="description" content="Thoughts on technology, the places we call home, and everything in between." />
+    <title>nyanko. — ideas worth keeping</title>
+    <script>
+      const savedTheme = localStorage.getItem('theme')
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+      document.documentElement.classList.toggle('dark', savedTheme === 'dark' || (savedTheme !== 'light' && prefersDark))
+    </script>
   </head>
   <body>
     <div id="root"></div>
