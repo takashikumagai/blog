@@ -17,7 +17,7 @@ pub mod models;
 
 use app::AppState;
 use error::AppError;
-use models::{Post, PostSummary};
+pub use models::{Post, PostSummary};
 
 #[derive(Debug, Default, Deserialize)]
 pub struct PostFilters {
@@ -28,7 +28,7 @@ pub struct PostFilters {
     pub offset: i64,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct PaginatedResponse<T> {
     pub items: Vec<T>,
     pub total: i64,
@@ -36,7 +36,7 @@ pub struct PaginatedResponse<T> {
     pub offset: i64,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Default, Deserialize)]
 pub struct PostInput {
     pub title: String,
     pub content: String,
@@ -44,6 +44,10 @@ pub struct PostInput {
     pub genre: Option<String>,
     #[serde(default)]
     pub excerpt: Option<String>,
+    // This attribute is only triggered when Serde is actively parsing a JSON string
+    // into the struct. If the published key is completely missing from the incoming
+    // JSON payload, Serde will call default_published() instead of the standard
+    // boolean default.
     #[serde(default = "default_published")]
     pub published: bool,
     #[serde(default)]
@@ -78,12 +82,12 @@ pub async fn app_with_db(db: PgPool) -> Router {
         .with_state(AppState { db })
 }
 
-async fn auth_not_implemented() -> impl IntoResponse {
-    (
-        StatusCode::NOT_IMPLEMENTED,
-        Json(serde_json::json!({"error": "authentication is not available yet"})),
-    )
-}
+// async fn auth_not_implemented() -> impl IntoResponse {
+//     (
+//         StatusCode::NOT_IMPLEMENTED,
+//         Json(serde_json::json!({"error": "authentication is not available yet"})),
+//     )
+// }
 
 async fn health_check(State(state): State<AppState>) -> impl IntoResponse {
     match sqlx::query_scalar::<_, i32>("SELECT 1")
@@ -287,4 +291,85 @@ fn validate_post(id: &str, input: &PostInput) -> Result<(), AppError> {
         return Err(AppError::InvalidInput);
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use axum::extract::State;
+    use axum::response::IntoResponse;
+    use axum::http::StatusCode;
+
+    // This macro automatically provisions an isolated database pool for this test,
+    // runs migrations, and passes the pool into your test function argument.
+    #[sqlx::test]
+    async fn test_health_check_success(pool: sqlx::PgPool) {
+        // Arrange
+        let state = AppState { db: pool };
+
+        // Act
+        let response = health_check(State(state)).await.into_response();
+
+        // Assert
+        assert_eq!(response.status(), StatusCode::OK);
+    }
+
+    #[test]
+    fn test_validate_post_valid_cases() {
+        let input = PostInput {
+            title: "Valid Title".to_string(),
+            content: "Valid Content".to_string(),
+            genre: None,
+            excerpt: None,
+            published: true,
+            published_at: None,
+        };
+
+        // Standard valid slugs
+        assert!(validate_post("hello-world", &input).is_ok());
+        assert!(validate_post("nyanko-blog-2026", &input).is_ok());
+        assert!(validate_post("simple", &input).is_ok());
+    }
+
+    #[test]
+    fn test_validate_post_invalid_slugs() {
+        let input = PostInput {
+            title: "Valid Title".to_string(),
+            content: "Valid Content".to_string(),
+            ..Default::default()
+        };
+
+        // Uppercase characters are not allowed
+        assert!(validate_post("Hello-World", &input).is_err());
+        // Trailing/leading dashes result in empty parts via .split('-')
+        assert!(validate_post("hello-world-", &input).is_err());
+        assert!(validate_post("-hello-world", &input).is_err());
+        // Double dashes leave an empty chunk between them
+        assert!(validate_post("hello--world", &input).is_err());
+        // Special characters or spaces are invalid
+        assert!(validate_post("hello_world", &input).is_err());
+        assert!(validate_post("hello world", &input).is_err());
+        assert!(validate_post("hello!", &input).is_err());
+        // Empty slugs are caught
+        assert!(validate_post("", &input).is_err());
+        // Exceeding 200 characters limit
+        assert!(validate_post(&"a".repeat(201), &input).is_err());
+    }
+
+    #[test]
+    fn test_validate_post_invalid_payloads() {
+        let invalid_title = PostInput {
+            title: "   ".to_string(), // Whitespace only
+            content: "Valid content".to_string(),
+            ..Default::default()
+        };
+        assert!(validate_post("valid-slug", &invalid_title).is_err());
+
+        let invalid_content = PostInput {
+            title: "Valid Title".to_string(),
+            content: "".to_string(), // Empty string
+            ..Default::default()
+        };
+        assert!(validate_post("valid-slug", &invalid_content).is_err());
+    }
 }
