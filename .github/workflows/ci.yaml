@@ -35,6 +35,11 @@ jobs:
       - name: Set up Rust stable toolchain
         uses: dtolnay/rust-toolchain@stable
 
+      - name: Cache dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: backend -> target
+
       - name: Run cargo test
         working-directory: backend
         env:
