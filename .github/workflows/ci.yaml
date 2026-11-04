@@ -35,6 +35,8 @@ jobs:
       - name: Set up Rust stable toolchain
         uses: dtolnay/rust-toolchain@stable
 
+      # Note that `workspaces` is a specific option built into Swatinem/rust-cache
+      # Value: [path to Cargo.toml directory] -> [target directory]
       - name: Cache dependencies
         uses: Swatinem/rust-cache@v2
         with:
