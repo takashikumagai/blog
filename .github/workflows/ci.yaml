@@ -39,5 +39,4 @@ jobs:
         working-directory: backend
         env:
           DATABASE_URL: postgresql://blog:dev@localhost:5432/nyanko_blog
-        format: --all-targets
-        run: cargo test
+        run: cargo test --all-targets
